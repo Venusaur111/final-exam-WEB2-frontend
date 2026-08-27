@@ -2,4 +2,4 @@ const AdminCourses = ()=>{
 
 }
 
-export default AdminDashboard;
+export default AdminCourses;
