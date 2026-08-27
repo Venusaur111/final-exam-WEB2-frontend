@@ -1,5 +1,10 @@
-const ExamHistoric = ()=>{
+const ExamHistoric = ({examName, subject, dateOfUpdate})=>{
 
+    return(
+        <>
+            
+        </>
+    )
     
 }
 
