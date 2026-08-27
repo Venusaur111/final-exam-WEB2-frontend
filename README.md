@@ -1,84 +1,47 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-# React + TypeScript + Vite
+Exam Manager Frontend
+Overview
+Frontend application for the Exam Manager system, built with React, TypeScript, Vite, and Tailwind CSS. It provides user interfaces for both administrators and students to manage and take exams.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Prerequisites
+Node.js (v18 or higher)
 
-Currently, two official plugins are available:
+pnpm package manager
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Installation & Setup
+Clone the repository:
 
-## React Compiler
+Bash
+git clone https://github.com/Venusaur111/final-exam-WEB2-frontend.git
+cd final-exam-WEB2-frontend
+Install dependencies:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Bash
+pnpm install
+Configure environment variables:
+Create a .env file at the root of the project with the backend API URL:
 
-## Expanding the ESLint configuration
+Extrait de code
+VITE_API_URL=http://localhost:3000
+Running the Application
+Start the development server:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Bash
+pnpm run dev
+Build for production:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Bash
+pnpm run build
+Preview production build:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Bash
+pnpm run preview
+Test Accounts
+Administrator
+Email: admin@hei.mg
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Password: admin123
 
-```
+Student
+Email: student@hei.mg
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-# Final-exam-WEB2-frontend
-=======
-# Final-exam-WEB2-frontend
->>>>>>> 715c84f27e036175b4e00845fee80e48c17ea330
-=======
-# Final-exam-WEB2-frontend
->>>>>>> 715c84f27e036175b4e00845fee80e48c17ea330
+Password: student123
