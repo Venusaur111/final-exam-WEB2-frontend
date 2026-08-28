@@ -9,7 +9,9 @@ import StudentPage from "./pages/admin/StudentPage";
 import CoursePage from "./pages/admin/CoursePage";
 import ExamPage from "./pages/admin/ExamPage";
 import EditionQuestion from "./pages/admin/EditionQuestion";
+
 import ExamList from "./pages/student/ExamList";
+import ResultList from "./pages/student/ResultList";
 
 
 
@@ -52,7 +54,7 @@ const App = ()=> {
             <Route element={<ProtectedRoute role="student"/>}>
               <Route element={<Layout />}>
                 <Route path="/student" element={<ExamList/>}/>
-                <Route path="/student/results" element={<></>}/>
+                <Route path="/student/results" element={<ResultList/>}/>
                 <Route path="/student/exams/:id" element={<></>}/> {/**route when the student want to pass an exam */}
                 <Route path="/student/exams/:id/result" element={<></>}/> 
               </Route>
