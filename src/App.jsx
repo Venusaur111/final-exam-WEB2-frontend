@@ -12,6 +12,7 @@ import EditionQuestion from "./pages/admin/EditionQuestion";
 
 import ExamList from "./pages/student/ExamList";
 import ResultList from "./pages/student/ResultList";
+import ExamStudent from "./pages/student/ExamStudent";
 
 
 
@@ -55,7 +56,7 @@ const App = ()=> {
               <Route element={<Layout />}>
                 <Route path="/student" element={<ExamList/>}/>
                 <Route path="/student/results" element={<ResultList/>}/>
-                <Route path="/student/exams/:id" element={<></>}/> {/**route when the student want to pass an exam */}
+                <Route path="/student/exams/:id" element={<ExamStudent/>}/> {/**route when the student want to pass an exam */}
                 <Route path="/student/exams/:id/result" element={<></>}/> 
               </Route>
             </Route>
