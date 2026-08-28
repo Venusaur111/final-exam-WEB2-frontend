@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import Login from "./pages/login/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import StudentPage from "./pages/admin/StudentPage";
+import CoursePage from "./pages/admin/CoursePage";
 
 
 
@@ -37,7 +38,7 @@ const App = ()=> {
               <Route element={<Layout />}>
                 <Route path="/admin" element={<Dashboard/>}/>
                 <Route path="/admin/students" element={<StudentPage/>}/>
-                <Route path="/admin/courses"/>
+                <Route path="/admin/courses" element={<CoursePage/>}/>
                 <Route path="/admin/exams"/> {/**route for exam lists */}
                 <Route path="/admin/exams/:id/questions"/> {/**route for seing a specific exam */}
                 <Route path="/admin/exams/:id/results"/> 
