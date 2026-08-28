@@ -9,6 +9,9 @@ import StudentPage from "./pages/admin/StudentPage";
 import CoursePage from "./pages/admin/CoursePage";
 import ExamPage from "./pages/admin/ExamPage";
 import EditionQuestion from "./pages/admin/EditionQuestion";
+import ExamList from "./pages/student/ExamList";
+
+
 
 
 const HomeRedirect = ()=>{
@@ -47,7 +50,12 @@ const App = ()=> {
             </Route>
 
             <Route element={<ProtectedRoute role="student"/>}>
-
+              <Route element={<Layout />}>
+                <Route path="/student" element={<ExamList/>}/>
+                <Route path="/student/results" element={<></>}/>
+                <Route path="/student/exams/:id" element={<></>}/> {/**route when the student want to pass an exam */}
+                <Route path="/student/exams/:id/result" element={<></>}/> 
+              </Route>
             </Route>
           </Routes>
         </BrowserRouter>
