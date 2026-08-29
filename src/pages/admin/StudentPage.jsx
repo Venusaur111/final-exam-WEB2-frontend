@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { FaEllipsisV, FaPlus, FaSearch, FaUserCog, FaChartLine } from "react-icons/fa";
+import { FaPlus, FaSearch, FaUserCog, FaChartLine, FaCheckCircle, FaBan } from "react-icons/fa";
 
-import { createStudent, disableStudent, getStudents, updateStudent } from "../../api/students";
-
-
+import { createStudent, disableStudent, activateStudent, getStudents, updateStudent } from "../../api/students";
 
 const emptyForm = {
     firstName: "",
@@ -12,6 +10,7 @@ const emptyForm = {
     name: "",
     email: "",
     password: "",
+    isActive: true,
 };
 
 const StudentPage = () => {
@@ -26,7 +25,7 @@ const StudentPage = () => {
     const [form, setForm] = useState(emptyForm);
     const [saving, setSaving] = useState(false);
 
-    const loadStudents = async () => {          
+    const loadStudents = async () => {
         setLoading(true);
         setError("");
 
@@ -90,6 +89,7 @@ const StudentPage = () => {
             name: student.name || "",
             email: student.email || "",
             password: "",
+            isActive: student.isActive ?? student.active ?? true,
         });
         setError("");
         setSuccess("");
@@ -153,6 +153,27 @@ const StudentPage = () => {
         }
     };
 
+    const handleActivateStudent = async (student) => {
+        const studentName =
+            student.name ||
+            `${student.firstName || ""} ${student.lastName || ""}`.trim();
+
+        if (!window.confirm(`Activate ${studentName}?`)) {
+            return;
+        }
+
+        setError("");
+        setSuccess("");
+
+        try {
+            await activateStudent(student.id);
+            setSuccess("Student account activated successfully.");
+            await loadStudents();
+        } catch (err) {
+            setError(err.message || "Unable to activate student.");
+        }
+    };
+
     const getStudentName = (student) => {
         return (
             student.name ||
@@ -211,7 +232,7 @@ const StudentPage = () => {
                                 onClick={() => setError("")}
                                 className="ml-4 font-bold text-red-400 hover:text-red-600"
                             >
-                                ×
+                                x
                             </button>
                         </div>
                     )}
@@ -225,7 +246,7 @@ const StudentPage = () => {
                                 onClick={() => setSuccess("")}
                                 className="ml-4 font-bold text-[#007979]"
                             >
-                                ×
+                                x
                             </button>
                         </div>
                     )}
@@ -324,100 +345,102 @@ const StudentPage = () => {
                                 <div className="hidden overflow-x-auto md:block">
                                     <table className="w-full min-w-[850px]">
                                         <thead>
-                                            <tr className="border-b border-slate-100 bg-slate-50/70">
-                                                <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
-                                                    Reference
-                                                </th>
+                                        <tr className="border-b border-slate-100 bg-slate-50/70">
+                                            <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                Reference
+                                            </th>
 
-                                                <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
-                                                    Full name
-                                                </th>
+                                            <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                Full name
+                                            </th>
 
-                                                <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
-                                                    Email
-                                                </th>
+                                            <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                Email
+                                            </th>
 
-                                                <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
-                                                    Status
-                                                </th>
+                                            <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                Status
+                                            </th>
 
-                                                <th className="px-5 py-4 text-right text-xs font-bold uppercase tracking-wide text-slate-400">
-                                                    Actions
-                                                </th>
-                                            </tr>
+                                            <th className="px-5 py-4 text-right text-xs font-bold uppercase tracking-wide text-slate-400">
+                                                Actions
+                                            </th>
+                                        </tr>
                                         </thead>
 
                                         <tbody>
-                                            {filteredStudents.map((student) => {
-                                                const active = isStudentActive(student);
+                                        {filteredStudents.map((student) => {
+                                            const active = isStudentActive(student);
 
-                                                return (
-                                                    <tr
-                                                        key={student.id}
-                                                        className="border-b border-slate-100 last:border-0 transition hover:bg-[#D9FFF4]/20"
-                                                    >
-                                                        <td className="px-5 py-5">
+                                            return (
+                                                <tr
+                                                    key={student.id}
+                                                    className="border-b border-slate-100 last:border-0 transition hover:bg-[#D9FFF4]/20"
+                                                >
+                                                    <td className="px-5 py-5">
                                                             <span className="rounded-lg bg-purple-50 px-3 py-1.5 text-xs font-bold text-[#4E1F6E]">
                                                                 {getStudentReference(student)}
                                                             </span>
-                                                        </td>
+                                                    </td>
 
-                                                        <td className="px-5 py-5">
+                                                    <td className="px-5 py-5">
                                                             <span className="font-semibold text-slate-700">
                                                                 {getStudentName(student)}
                                                             </span>
-                                                        </td>
+                                                    </td>
 
-                                                        <td className="px-5 py-5 text-sm text-slate-500">
-                                                            {student.email || "—"}
-                                                        </td>
+                                                    <td className="px-5 py-5 text-sm text-slate-500">
+                                                        {student.email || "—"}
+                                                    </td>
 
-                                                        <td className="px-5 py-5">
+                                                    <td className="px-5 py-5">
                                                             <span
-                                                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${active
-                                                                    ? "bg-[#D9FFF4] text-[#007979]"
-                                                                    : "bg-red-50 text-red-500"
-                                                                    }`}
+                                                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                                                                    active
+                                                                        ? "bg-[#D9FFF4] text-[#007979]"
+                                                                        : "bg-red-50 text-red-500"
+                                                                }`}
                                                             >
                                                                 {active ? "Active" : "Inactive"}
                                                             </span>
-                                                        </td>
+                                                    </td>
 
-                                                        <td className="px-5 py-5">
-                                                            <div className="flex justify-end gap-2">
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => openEdit(student)}
-                                                                    className="inline-flex items-center gap-2 rounded-lg border border-[#007979] px-3 py-2 text-xs font-semibold text-[#007979] transition hover:bg-[#D9FFF4]"
-                                                                >
-                                                                    <FaUserCog />
-                                                                    Manage
-                                                                </button>
+                                                    <td className="px-5 py-5">
+                                                        <div className="flex justify-end gap-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => openEdit(student)}
+                                                                className="inline-flex items-center gap-2 rounded-lg border border-[#007979] px-3 py-2 text-xs font-semibold text-[#007979] transition hover:bg-[#D9FFF4]"
+                                                            >
+                                                                <FaUserCog />
+                                                                Manage
+                                                            </button>
 
-                                                                <button
-                                                                    type="button"
-                                                                    title="Deactivate"
-                                                                    disabled={!active}
-                                                                    onClick={() =>
-                                                                        deactivateStudent(student)
-                                                                    }
-                                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
-                                                                >
-                                                                    <FaEllipsisV />
-                                                                </button>
+                                                            <button
+                                                                type="button"
+                                                                title={active ? "Deactivate" : "Activate"}
+                                                                onClick={() => (active ? deactivateStudent(student) : handleActivateStudent(student))}
+                                                                className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
+                                                                    active
+                                                                        ? "text-slate-400 hover:bg-red-50 hover:text-red-500"
+                                                                        : "text-slate-400 hover:bg-[#D9FFF4] hover:text-[#007979]"
+                                                                }`}
+                                                            >
+                                                                {active ? <FaBan /> : <FaCheckCircle />}
+                                                            </button>
 
-                                                                <button
-                                                                    type="button"
-                                                                    title="View results"
-                                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-[#D9FFF4] hover:text-[#007979]"
-                                                                >
-                                                                    <FaChartLine />
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
+                                                            <button
+                                                                type="button"
+                                                                title="View results"
+                                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-[#D9FFF4] hover:text-[#007979]"
+                                                            >
+                                                                <FaChartLine />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                         </tbody>
                                     </table>
                                 </div>
@@ -447,10 +470,11 @@ const StudentPage = () => {
                                                     </div>
 
                                                     <span
-                                                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${active
-                                                            ? "bg-[#D9FFF4] text-[#007979]"
-                                                            : "bg-red-50 text-red-500"
-                                                            }`}
+                                                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
+                                                            active
+                                                                ? "bg-[#D9FFF4] text-[#007979]"
+                                                                : "bg-red-50 text-red-500"
+                                                        }`}
                                                     >
                                                         {active ? "Active" : "Inactive"}
                                                     </span>
@@ -468,11 +492,15 @@ const StudentPage = () => {
 
                                                     <button
                                                         type="button"
-                                                        disabled={!active}
-                                                        onClick={() => deactivateStudent(student)}
-                                                        className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
+                                                        title={active ? "Deactivate" : "Activate"}
+                                                        onClick={() => (active ? deactivateStudent(student) : handleActivateStudent(student))}
+                                                        className={`flex h-10 w-10 items-center justify-center rounded-lg transition ${
+                                                            active
+                                                                ? "text-slate-400 hover:bg-red-50 hover:text-red-500"
+                                                                : "text-slate-400 hover:bg-[#D9FFF4] hover:text-[#007979]"
+                                                        }`}
                                                     >
-                                                        <FaEllipsisV />
+                                                        {active ? <FaBan /> : <FaCheckCircle />}
                                                     </button>
 
                                                     <button
@@ -517,7 +545,7 @@ const StudentPage = () => {
                                     onClick={() => setOpen(false)}
                                     className="flex h-9 w-9 items-center justify-center rounded-lg text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
                                 >
-                                    ×
+                                    x
                                 </button>
                             </div>
 
@@ -601,6 +629,45 @@ const StudentPage = () => {
                                     </div>
                                 )}
 
+                                <div>
+                                    <label className="mb-2 block text-sm font-semibold text-[#1D546C]">
+                                        Account Status (is_active)
+                                    </label>
+                                    <div className="flex items-center gap-6 pt-1">
+                                        <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="isActive"
+                                                checked={form.isActive === true}
+                                                onChange={() =>
+                                                    setForm((current) => ({
+                                                        ...current,
+                                                        isActive: true,
+                                                    }))
+                                                }
+                                                className="text-[#007979] focus:ring-[#65DCD5]"
+                                            />
+                                            Active
+                                        </label>
+
+                                        <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="isActive"
+                                                checked={form.isActive === false}
+                                                onChange={() =>
+                                                    setForm((current) => ({
+                                                        ...current,
+                                                        isActive: false,
+                                                    }))
+                                                }
+                                                className="text-[#007979] focus:ring-[#65DCD5]"
+                                            />
+                                            Inactive
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                                     <button
                                         type="button"
@@ -629,6 +696,6 @@ const StudentPage = () => {
             </div>
         </>
     );
-}
+};
 
 export default StudentPage;
