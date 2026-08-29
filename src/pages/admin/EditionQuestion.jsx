@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaTrash, FaCheckCircle } from "react-icons/fa";
+
+import { getQuestions, createQuestion, deleteQuestion } from "../../api/questions";
+import { Loading, EmptyState } from "../../components/UI";
 
 const EditionQuestion = () => {
   const { id: examId } = useParams(); // Récupère l'ID de l'examen depuis l'URL /admin/exams/:id/questions
@@ -14,6 +17,28 @@ const EditionQuestion = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [questions, setQuestions] = useState([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const [listError, setListError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+
+  const loadQuestions = useCallback(async () => {
+    try {
+      setLoadingQuestions(true);
+      setListError("");
+      const data = await getQuestions(examId);
+      setQuestions(Array.isArray(data) ? data : data?.questions || []);
+    } catch (err) {
+      setListError(err.message || "Unable to load questions.");
+    } finally {
+      setLoadingQuestions(false);
+    }
+  }, [examId]);
+
+  useEffect(() => {
+    loadQuestions();
+  }, [loadQuestions]);
 
   const updateChoice = (id, value) => {
     setChoices((currentChoices) =>
@@ -88,30 +113,50 @@ const EditionQuestion = () => {
 
     try {
       const payload = {
-        examId: Number(examId) || examId,
-        content: content.trim(),
+        statement: content.trim(),
         points: Number(points),
         choices: choices.map((c) => ({
-          text: c.content.trim(),
+          label: c.content.trim(),
           isCorrect: c.isCorrect,
         })),
       };
+
+      await createQuestion(examId, payload);
+
+      setSuccess("Question saved successfully!");
+
       setContent("");
       setPoints(1);
       setChoices([
         { id: 1, content: "", isCorrect: true },
         { id: 2, content: "", isCorrect: false },
       ]);
+
+      await loadQuestions();
     } catch (err) {
-      setError("Unable to save the question.");
+      setError(err.message || "Unable to save the question.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async (questionId) => {
+    setError("");
+    setSuccess("");
+    setDeletingId(questionId);
+
+    try {
+      await deleteQuestion(questionId);
+      setQuestions((current) => current.filter((q) => q.id !== questionId));
+    } catch (err) {
+      setError(err.message || "Unable to delete the question.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-4 sm:p-6 lg:p-8">
-      {/* En-tête avec bouton retour */}
       <div className="flex items-center gap-4">
         <Link
           to="/admin/exams"
@@ -269,6 +314,94 @@ const EditionQuestion = () => {
             {loading ? "Saving..." : "Save"}
           </button>
         </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-[#4E1F6E]">
+            Questions for this exam
+          </h2>
+
+          {!loadingQuestions && (
+            <span className="rounded-full bg-[#D9FFF4] px-3 py-1 text-xs font-semibold text-[#007979]">
+              {questions.length} question{questions.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
+
+        {listError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+            {listError}
+          </div>
+        )}
+
+        {loadingQuestions ? (
+          <Loading />
+        ) : questions.length === 0 ? (
+          <EmptyState
+            title="No questions yet"
+            text="Questions you create above will appear here."
+          />
+        ) : (
+          <div className="space-y-4">
+            {questions.map((question, qIndex) => (
+              <div
+                key={question.id}
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Question {qIndex + 1}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#1D546C]">
+                      {question.statement}
+                    </p>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="rounded-full bg-[#D9FFF4] px-3 py-1 text-xs font-semibold text-[#007979]">
+                      {question.points} pt{question.points > 1 ? "s" : ""}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(question.id)}
+                      disabled={deletingId === question.id}
+                      aria-label="Delete question"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <FaTrash className="text-xs" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  {(question.choices || []).map((choice, cIndex) => (
+                    <div
+                      key={choice.id ?? cIndex}
+                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                        choice.isCorrect
+                          ? "border-[#007979] bg-[#D9FFF4]/50 text-[#1D546C] font-medium"
+                          : "border-slate-200 bg-slate-50 text-slate-600"
+                      }`}
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-slate-400 border border-slate-200">
+                        {String.fromCharCode(65 + cIndex)}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate">
+                        {choice.label}
+                      </span>
+                      {choice.isCorrect && (
+                        <FaCheckCircle className="shrink-0 text-[#007979]" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
