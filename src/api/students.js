@@ -22,3 +22,10 @@ export const disableStudent = (id) =>
   apiFetch(`/students/${id}`, {
     method: "DELETE",
   });
+
+// Activate a student account
+export const activateStudent = async (id) => {
+    return apiFetch(`/students/${id}/activate`, {
+        method: "PUT",
+    });
+};
