@@ -11,7 +11,7 @@ export async function apiFetch(endpoint, options = {}) {
   try {
     response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   } catch {
-    throw new Error("Impossible de contacter le serveur. Vérifiez que le backend est démarré.");
+    throw new Error("Unable to contact the server. Check to see if the backend is running.");
   }
 
   let data = null;

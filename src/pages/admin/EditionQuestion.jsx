@@ -96,15 +96,6 @@ const EditionQuestion = () => {
           isCorrect: c.isCorrect,
         })),
       };
-
-      console.log("Données envoyées à l'API pour l'examen ID:", examId, payload);
-
-      // Remplacez ceci par votre appel API réel (ex: axios.post ou fetch)
-      // await createQuestion(payload);
-
-      setSuccess("Question saved successfully!");
-      
-      // Réinitialisation du formulaire après succès
       setContent("");
       setPoints(1);
       setChoices([
